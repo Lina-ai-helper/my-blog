@@ -41,6 +41,18 @@ const render = () => {
   renderEditCanvas(canvas, gridState);
 };
 
+let renderScheduled = false;
+
+// 보간으로 한 프레임에 여러 셀이 바뀌어도 전체 캔버스 다시 그리기는 프레임당 한 번만 실행한다
+const scheduleRender = () => {
+  if (renderScheduled) return;
+  renderScheduled = true;
+  requestAnimationFrame(() => {
+    renderScheduled = false;
+    render();
+  });
+};
+
 const updateUndoButton = () => {
   undoBtn.disabled = undoStack.length === 0;
 };
@@ -116,7 +128,7 @@ const paintCell = (x, y) => {
   const changed = setCell(gridState, x, y, color);
   if (changed) {
     strokeChanged = true;
-    render();
+    scheduleRender();
   }
 };
 
@@ -146,6 +158,8 @@ const handleClear = () => {
 };
 
 const handleUndo = () => {
+  // 스트로크 진행 중에는 시작 시점 스냅샷이 아직 스택에 반영되지 않았으므로 되돌리기를 막는다
+  if (strokeSnapshot) return;
   if (undoStack.length === 0) return;
   gridState.cells = undoStack.pop();
   updateUndoButton();
@@ -154,8 +168,9 @@ const handleUndo = () => {
 };
 
 const handleSave = () => {
-  exportGridAsPng(gridState, 'pixel-art.png');
-  announce('PNG 파일로 저장되었습니다');
+  exportGridAsPng(gridState, 'pixel-art.png', (success) => {
+    announce(success ? 'PNG 파일로 저장되었습니다' : 'PNG 저장에 실패했습니다');
+  });
 };
 
 const handleKeydown = (event) => {

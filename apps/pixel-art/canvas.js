@@ -46,10 +46,14 @@ const createExportCanvas = (state) => {
 };
 
 // 현재 격자 상태를 PNG 파일로 다운로드한다. 빈 칸은 투명하게 유지된다.
-export const exportGridAsPng = (state, filename) => {
+// onComplete(success)는 toBlob 결과가 실제로 확정된 뒤 호출된다.
+export const exportGridAsPng = (state, filename, onComplete) => {
   const canvas = createExportCanvas(state);
   canvas.toBlob((blob) => {
-    if (!blob) return;
+    if (!blob) {
+      if (onComplete) onComplete(false);
+      return;
+    }
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
@@ -58,5 +62,6 @@ export const exportGridAsPng = (state, filename) => {
     link.click();
     link.remove();
     URL.revokeObjectURL(url);
+    if (onComplete) onComplete(true);
   }, 'image/png');
 };

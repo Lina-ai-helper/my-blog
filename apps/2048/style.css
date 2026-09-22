@@ -200,6 +200,10 @@ main {
   animation: tile-pop 150ms ease-out;
 }
 
+.tile.tile--static {
+  animation: none;
+}
+
 .tile[data-value='2'] {
   background: var(--tile-2-bg);
   color: var(--tile-2-text);

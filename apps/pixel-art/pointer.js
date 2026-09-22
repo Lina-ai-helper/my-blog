@@ -55,6 +55,7 @@ const interpolateCells = (x0, y0, x1, y1) => {
 export const attachPointerDrawing = (canvas, handlers) => {
   let drawing = false;
   let lastCell = null;
+  let activePointerId = null;
 
   // 이전에 칠한 셀부터 현재 셀까지 보간해 순서대로 칠한다 (같은 셀 중복 호출은 grid.js의 setCell이 걸러낸다).
   const paintTo = (x, y) => {
@@ -65,7 +66,10 @@ export const attachPointerDrawing = (canvas, handlers) => {
 
   const handlePointerDown = (event) => {
     if (event.pointerType === 'mouse' && event.button !== 0) return;
+    // 이미 다른 포인터(손가락)로 그리는 중이면 새 포인터는 무시해 스트로크 상태가 섞이지 않게 한다
+    if (drawing) return;
     drawing = true;
+    activePointerId = event.pointerId;
     lastCell = null;
     canvas.setPointerCapture(event.pointerId);
     handlers.onStrokeStart();
@@ -75,16 +79,17 @@ export const attachPointerDrawing = (canvas, handlers) => {
   };
 
   const handlePointerMove = (event) => {
-    if (!drawing) return;
+    if (!drawing || event.pointerId !== activePointerId) return;
     const { x, y } = pointToCell(canvas, event.clientX, event.clientY);
     paintTo(x, y);
     event.preventDefault();
   };
 
   const endStroke = (event) => {
-    if (!drawing) return;
+    if (!drawing || event.pointerId !== activePointerId) return;
     drawing = false;
     lastCell = null;
+    activePointerId = null;
     if (canvas.hasPointerCapture(event.pointerId)) {
       canvas.releasePointerCapture(event.pointerId);
     }

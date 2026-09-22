@@ -24,6 +24,7 @@ const KEY_DIRECTION_MAP = {
 const SWIPE_THRESHOLD = 24;
 
 let state = null;
+let previousGrid = null;
 
 // 화면에 보이지 않는 aria-live 영역에 상태 변화를 알린다
 const announce = (message) => {
@@ -40,20 +41,28 @@ const tileDataValue = (value) => (value > 2048 ? 'super' : String(value));
 
 const renderBoard = () => {
   boardEl.innerHTML = '';
-  state.grid.forEach((row) => {
-    row.forEach((value) => {
+  state.grid.forEach((row, rowIndex) => {
+    row.forEach((value, colIndex) => {
       const cell = document.createElement('div');
       cell.className = 'cell';
+      const label = value !== 0
+        ? `${rowIndex + 1}행 ${colIndex + 1}열, ${value}`
+        : `${rowIndex + 1}행 ${colIndex + 1}열, 빈 칸`;
+      cell.setAttribute('aria-label', label);
       if (value !== 0) {
         const tile = document.createElement('div');
         tile.className = 'tile';
         tile.dataset.value = tileDataValue(value);
         tile.textContent = String(value);
+        // 이전 렌더링과 같은 위치·같은 값이면 그대로인 타일이므로 팝 애니메이션을 재생하지 않는다
+        const prevValue = previousGrid ? previousGrid[rowIndex][colIndex] : null;
+        if (prevValue === value) tile.classList.add('tile--static');
         cell.appendChild(tile);
       }
       boardEl.appendChild(cell);
     });
   });
+  previousGrid = state.grid.map((row) => [...row]);
 };
 
 const render = () => {
@@ -81,14 +90,17 @@ const showGameOverOverlay = () => {
 
 // 새 게임 상태로 초기화하고 화면을 다시 그린다
 const newGame = () => {
+  // 저장 실패로 localStorage에 반영되지 못한 값이 있더라도 현재 세션의 최고 점수는 유지한다
+  const best = Math.max(loadBestScore(), state ? state.best : 0);
   state = {
     grid: createInitialGrid(),
     score: 0,
-    best: loadBestScore(),
+    best,
     won: false,
     over: false,
     keepPlayingAfterWin: false,
   };
+  previousGrid = null;
   hideOverlay();
   render();
   announce('새 게임을 시작합니다.');
@@ -121,6 +133,8 @@ const checkGameOver = () => {
 // 한 방향으로 이동을 시도하고, 실제로 이동했을 때만 새 타일 생성/판정을 진행한다
 const handleMove = (direction) => {
   if (!state || state.over) return;
+  // 승리 오버레이가 떠 있고 아직 '계속하기'를 선택하지 않았다면 추가 이동을 막는다
+  if (state.won && !state.keepPlayingAfterWin) return;
 
   const result = move(state.grid, direction);
   if (!result.moved) return;
