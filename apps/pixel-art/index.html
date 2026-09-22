@@ -1,0 +1,54 @@
+<!-- Created: 2026-09-22 15:20:52 -->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>픽셀 아트 에디터</title>
+  <meta name="description" content="16x16 격자에 도트를 찍어 그림을 그리고 PNG로 저장하는 픽셀 아트 에디터">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="app-header">
+    <h1>픽셀 아트 에디터</h1>
+    <p class="instructions">클릭이나 드래그, 또는 터치로 16x16 격자에 그림을 그려보세요.</p>
+  </header>
+
+  <main class="app-main">
+    <div class="canvas-panel">
+      <div class="canvas-wrap">
+        <canvas
+          id="pixel-canvas"
+          width="512"
+          height="512"
+          tabindex="0"
+          aria-label="16x16 픽셀 그림판"
+        ></canvas>
+      </div>
+    </div>
+
+    <div class="side-panel">
+      <section class="palette-section" aria-label="색상 팔레트">
+        <div class="swatch-grid" id="swatch-grid"></div>
+        <div class="custom-color-row">
+          <label class="custom-color-label" for="custom-color-input">커스텀 색상</label>
+          <input type="color" id="custom-color-input" value="#8a5a35" aria-label="커스텀 색상 선택">
+        </div>
+      </section>
+
+      <section class="toolbar" aria-label="도구">
+        <button type="button" id="eraser-btn" class="tool-btn" aria-pressed="false">
+          <span aria-hidden="true">🧹</span> 지우개
+        </button>
+        <button type="button" id="clear-btn" class="tool-btn">전체 지우기</button>
+        <button type="button" id="undo-btn" class="tool-btn" disabled>되돌리기</button>
+        <button type="button" id="save-btn" class="tool-btn tool-btn-primary">PNG로 저장</button>
+      </section>
+    </div>
+  </main>
+
+  <p class="sr-only" id="status-announcer" aria-live="polite"></p>
+
+  <script type="module" src="editor.js"></script>
+</body>
+</html>
