@@ -233,6 +233,74 @@ main.container {
   font-size: 13px;
 }
 
+/* ===== 미니 웹앱 ===== */
+.apps-section {
+  padding-top: 32px;
+}
+
+.apps-title {
+  font-size: 20px;
+  line-height: 1.3;
+  margin: 0 0 16px;
+}
+
+.app-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 16px;
+}
+
+.app-card {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  transition: border-color var(--transition);
+}
+
+.app-card:hover {
+  border-color: var(--accent);
+}
+
+.app-card-link {
+  display: block;
+  color: var(--text);
+}
+
+.app-card-link:hover {
+  text-decoration: none;
+}
+
+.app-preview {
+  height: 180px;
+  overflow: hidden;
+  background: var(--bg-soft);
+  border-bottom: 1px solid var(--border);
+  pointer-events: none;
+}
+
+.app-preview iframe {
+  width: 100%;
+  height: 420px;
+  border: 0;
+}
+
+.app-card-body {
+  padding: 16px;
+}
+
+.app-card-body h3 {
+  margin: 0 0 6px;
+  font-size: 17px;
+}
+
+.app-card-body p {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 14px;
+}
+
 /* ===== 글 목록 ===== */
 .page-title {
   font-size: 28px;
@@ -543,6 +611,10 @@ main.container {
 
   .prose {
     font-size: 18px;
+  }
+
+  .app-list {
+    grid-template-columns: repeat(2, 1fr);
   }
 }
 
